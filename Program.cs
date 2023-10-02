@@ -4,7 +4,6 @@ using RepoTask.BLL.Strategies;
 using RepoTask.BLL.Mediators;
 using Microsoft.Extensions.Options;
 using RepoTask.BLL;
-using RepoTask;
 using RepoTask.Test.Generate;
 
 var builder = WebApplication.CreateBuilder(args);
