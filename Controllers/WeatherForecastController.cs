@@ -23,8 +23,13 @@ public class WeatherForecastController : ControllerBase
     {
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            TemperatureC = Random.Shared.Next(-20, 55),
+            Date = 1696232759,
+            Temperature = Random.Shared.Next(-20, 55),
+            City = "Moscow",
+            Cloudiness = 0.98,
+            Wetness = 0.3,
+            WindSpeed = 3.1,
+            Pressure = 760,
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();

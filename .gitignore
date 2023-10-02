@@ -478,3 +478,6 @@ $RECYCLE.BIN/
 
 #Docker-compose
 /data
+
+#Rider
+.idea

@@ -2,11 +2,14 @@ namespace RepoTask;
 
 public class WeatherForecast
 {
-    public DateOnly Date { get; set; }
+    public long Date { get; set; }
 
-    public int TemperatureC { get; set; }
+    public double Temperature { get; set; }
 
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-
+    public string? City { get; set; }
+    public double Cloudiness { get; set; }
+    public double Wetness { get; set; }
+    public double WindSpeed { get; set; }
+    public int Pressure { get; set; }
     public string? Summary { get; set; }
 }
