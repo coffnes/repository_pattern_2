@@ -11,6 +11,8 @@ public class WeatherGenerator : IHostedService
     private readonly WeatherHandler _handler;
     private readonly Random rnd;
     private readonly MongoRepositoryManager _manager;
+    
+    public static readonly IList<City> cities = JsonSerializer.Deserialize<List<City>>(File.ReadAllText("Test/Generate/russian-cities.json"));
 
     public WeatherGenerator(WeatherHandler handler, MongoRepositoryManager manager)
     {
@@ -26,7 +28,7 @@ public class WeatherGenerator : IHostedService
 
     public void Generate()
     {
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 400; i++)
         {
             ThreadPool.QueueUserWorkItem((state) => GeneratePlusTemperatures());
             ThreadPool.QueueUserWorkItem((state) => GenerateMinusTemperatures());
@@ -114,14 +116,13 @@ public class WeatherGenerator : IHostedService
 
     private string GenerateCity()
     {
-        var cities = JsonSerializer.Deserialize<List<City>>(File.ReadAllText("Test/Generate/russian-cities.json"));
         return cities[rnd.Next(cities.Count)].name;
     }
 
     private long GenerateDate()
     {
-        DateTime start = new(2023, 9, 1);
-        DateTime stop = new(2023, 9, 30);
+        DateTime start = new(2023, 11, 1);
+        DateTime stop = new(2023, 11, 30);
         int range = (stop - start).Days;
         return (long)start.AddDays(rnd.Next(range)).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
     }

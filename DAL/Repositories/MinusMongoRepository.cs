@@ -7,12 +7,12 @@ namespace RepoTask.DAL.Repositories;
 public class MinusMongoRepository : IMinusRepository<string>
 {
     private readonly IMongoCollection<TemperatureEntity<string>> _minusTemperatureCollection;
-    private readonly IMongoCollection<WeatherForecast> _minusTemperatureCollectionOut;
+    private readonly IMongoCollection<TemperatureEntity<string>> _minusTemperatureCollectionOut;
     public MinusMongoRepository(MinusMongoClient mongoClient, IOptions<MinusMongoDatabaseSettings> databaseSettings)
     {
         var mongoDatabase = mongoClient.MongoClient.GetDatabase(databaseSettings.Value.DatabaseName);
         _minusTemperatureCollection = mongoDatabase.GetCollection<TemperatureEntity<string>>(databaseSettings.Value.MinusTemperatureCollectionName);
-        _minusTemperatureCollectionOut = mongoDatabase.GetCollection<WeatherForecast>(databaseSettings.Value.MinusTemperatureCollectionName);
+        _minusTemperatureCollectionOut = mongoDatabase.GetCollection<TemperatureEntity<string>>(databaseSettings.Value.MinusTemperatureCollectionName);
     }
     public async Task AddAsync(TemperatureEntity<string> entity)
     {
@@ -50,9 +50,11 @@ public class MinusMongoRepository : IMinusRepository<string>
     {
         await _minusTemperatureCollection.DeleteManyAsync(Builders<TemperatureEntity<string>>.Filter.Empty);
     }
-    public IEnumerable<TemperatureEntity<string>> GetAll()
+    public async Task<IEnumerable<TemperatureEntity<string>>> GetAll()
     {
-        var result = _minusTemperatureCollectionOut.Aggregate().ToList();
+        var pipeline = new EmptyPipelineDefinition<TemperatureEntity<string>>();
+        var cursor = await _minusTemperatureCollectionOut.AggregateAsync(pipeline: pipeline);
+        var result = await cursor.ToListAsync();
         return result;
     }
 }

@@ -63,6 +63,8 @@ builder.Services.AddHostedService((provider) => new WeatherGenerator(provider.Ge
 
 builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+builder.Services.AddResponseCaching();
+
 var app = builder.Build();
 
 app.UseCors("_myAllowSpecificOrigins");
@@ -77,6 +79,8 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseResponseCaching();
 
 app.MapReverseProxy();
 

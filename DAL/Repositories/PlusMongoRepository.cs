@@ -65,9 +65,11 @@ public class PlusMongoRepository : IPlusRepository<string>
     {
         await _plusTemperatureCollection.DeleteManyAsync(Builders<TemperatureEntity<string>>.Filter.Empty);
     }
-    public IEnumerable<TemperatureEntity<string>> GetAll()
+    public async Task<IEnumerable<TemperatureEntity<string>>> GetAll()
     {
-        var result = _plusTemperatureCollection.Aggregate().ToList();
+        var pipeline = new EmptyPipelineDefinition<TemperatureEntity<string>>();
+        var cursor = await _plusTemperatureCollection.AggregateAsync(pipeline: pipeline);
+        var result = await cursor.ToListAsync();
         return result;
     }
 }

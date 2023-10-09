@@ -1,85 +1,30 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div class="main">
+    <v-app>
+      <v-app-bar scroll-behavior="elevate" clipped-left>
+        <RouterLink to="/"><v-btn stacked variant="plain">Главная</v-btn></RouterLink>
+        <RouterLink to="/list"><v-btn stacked variant="plain">Погода</v-btn></RouterLink>
+        <RouterLink to="/filter_client"><v-btn stacked variant="plain">Фильтрация на клиенте</v-btn></RouterLink>
+        <RouterLink to="/filter_post"><v-btn stacked variant="plain">Фильтрация POST запросом</v-btn></RouterLink>
+        <RouterLink to="/filter_get"><v-btn stacked variant="plain">Фильтрация GET запросом</v-btn></RouterLink>
+        <RouterLink to="/filter_graph"><v-btn stacked variant="plain">Фильтрация GrpahQL</v-btn></RouterLink>
+        <RouterLink to="/pag_mongo"><v-btn stacked variant="plain">Пагинация MongoDriver</v-btn></RouterLink>
+        <RouterLink to="/pag_graph"><v-btn stacked variant="plain">Пагинация GrpahQL</v-btn></RouterLink>
+        <RouterLink to="/search_client"><v-btn stacked variant="plain">Поиск на клиенте</v-btn></RouterLink>
+        <RouterLink to="/search_server"><v-btn stacked variant="plain">Поиск на сервере</v-btn></RouterLink>
+        <RouterLink to="/elasticsearch"><v-btn stacked variant="plain">Поиск Elasticsearch</v-btn></RouterLink>
+      </v-app-bar>
+      <v-main>
+        <RouterView />
+      </v-main>
+    </v-app>
+  </div>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
 </style>
