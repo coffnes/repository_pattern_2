@@ -13,12 +13,12 @@ public class MongoRepositoryManager
         _defaultRepository = defaultRepository;
     }
 
-    public IList<TemperatureEntity<string>> GetAll()
+    public IEnumerable<TemperatureEntity<string>> GetAll()
     {
         List<TemperatureEntity<string>> result = new();
         foreach(var r in _repositories)
         {
-            result = result.Union(r.GetAll()).ToList();
+            result.AddRange(r.GetAll().Result);
         }
         return result;
     }
@@ -49,9 +49,10 @@ public class MongoRepositoryManager
             await r.DeleteAll();
         }
     }
-    public IList<TemperatureEntity<string>> GetOnlyZeroTemperature()
+    public async Task<IList<TemperatureEntity<string>>> GetOnlyZeroTemperature()
     {
-        return _defaultRepository.GetAll().ToList();
+        var result = await _defaultRepository.GetAll();
+        return result.ToList();
     }
     public IList<TemperatureEntity<string>> GetByFilter(FilterOptions filter)
     {
@@ -61,7 +62,7 @@ public class MongoRepositoryManager
         foreach(var r in _repositories)
         {
             var filteredByCity = r.GetByCity(filter.selectedCity).ToList();
-            resultByCity = resultByCity.Union(filteredByCity).ToList();
+            resultByCity = resultByCity.Concat(filteredByCity).ToList();
             if(filter.selectedDateFrom != "" && filter.selectedDateTo != "") {
                 var filteredByDate = r.GetByDate((long)Convert.ToDouble(filter.selectedDateFrom), (long)Convert.ToDouble(filter.selectedDateTo));
                 resultByDate = resultByDate.Union(filteredByDate).ToList();
@@ -90,6 +91,7 @@ public class MongoRepositoryManager
                 return x.Date.CompareTo(y.Date);
             });
         }
+        
         return result;
     }
 }

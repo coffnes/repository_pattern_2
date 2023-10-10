@@ -1,9 +1,11 @@
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using RepoTask.DAL.Models;
 using RepoTask.BLL;
 using RepoTask.DAL.Repositories;
 using RepoTask.DAL;
 using System.Text.Json;
+using RepoTask.Test.Generate;
 
 namespace RepoTask.Controllers;
 
@@ -14,8 +16,9 @@ public class WeatherForecastController : ControllerBase
     private readonly ILogger<WeatherForecastController> _logger;
     private readonly WeatherHandler _handler;
     private readonly MongoRepositoryManager _repoManager;
-    
-    public WeatherForecastController(ILogger<WeatherForecastController> logger, WeatherHandler handler, MongoRepositoryManager repoManager)
+
+    public WeatherForecastController(ILogger<WeatherForecastController> logger, WeatherHandler handler,
+        MongoRepositoryManager repoManager)
     {
         _logger = logger;
         _handler = handler;
@@ -23,10 +26,19 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet]
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
     public IEnumerable<TemperatureEntity<string>> Get()
     {
-        return _repoManager.GetAll();
+        var result = _repoManager.GetAll();
+        return result;
     }
+
+    [HttpGet("get_cities")]
+    public IList<City> GetCitiesList()
+    {
+        return WeatherGenerator.cities;
+    }
+    
     [HttpGet("city/{city?}")]
     public IList<TemperatureEntity<string>> GetByCity(string? city)
     {
@@ -42,7 +54,7 @@ public class WeatherForecastController : ControllerBase
     [HttpGet("zero")]
     public IList<TemperatureEntity<string>> GetOnlyZeroTemperature()
     {
-        return _repoManager.GetOnlyZeroTemperature();
+        return _repoManager.GetOnlyZeroTemperature().Result;
     }
 
     [HttpPost]
@@ -51,7 +63,7 @@ public class WeatherForecastController : ControllerBase
         await _handler.Handl(weatherForecast);
     }
 
-    [HttpPost("filter_post")]
+    [HttpPost("query_post")]
     public async void FilterPost() {
         var jsonString = "";
         using(var inputStream = new StreamReader(HttpContext.Request.Body))
@@ -60,11 +72,24 @@ public class WeatherForecastController : ControllerBase
         }
         FilterOptions? filter = JsonSerializer.Deserialize<FilterOptions>(jsonString);
         var result = _repoManager.GetByFilter(filter);
+        /*foreach (var r in result)
+        {
+            Console.WriteLine(r.City);
+        }*/
+        Console.WriteLine(result);
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        var jsonResponseString = JsonSerializer.Serialize(result, options);
+        var jsonResponseString = "";
+        //var jsonResponseString = JsonSerializer.Serialize(result, options);
+        using (var stream = new MemoryStream())
+        {
+            await JsonSerializer.SerializeAsync(stream, result, options);
+            stream.Position = 0;
+            using var reader = new StreamReader(stream);
+            jsonResponseString = await reader.ReadToEndAsync();
+        }
         await HttpContext.Response.WriteAsync(jsonResponseString);
     }
     [HttpGet("filter_get")]
@@ -79,7 +104,15 @@ public class WeatherForecastController : ControllerBase
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        var jsonResponseString = JsonSerializer.Serialize(result, options);
-        await HttpContext.Response.WriteAsync(jsonResponseString);
+        var jsonResponseString = "";
+        using (var stream = new MemoryStream())
+        {
+            await JsonSerializer.SerializeAsync(stream, result, options);
+            stream.Position = 0;
+            using var reader = new StreamReader(stream);
+            jsonResponseString = await reader.ReadToEndAsync();
+        }
+        //await HttpContext.Response.WriteAsync(jsonResponseString);
+        await HttpContext.Response.Body.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(jsonResponseString))).AsTask();
     }
 }

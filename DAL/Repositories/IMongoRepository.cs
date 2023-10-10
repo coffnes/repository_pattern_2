@@ -11,5 +11,5 @@ public interface IMongoRepository<T> : IRepository<T>
     public IList<TemperatureEntity<T>> GetByCity(string? city);
     public IList<TemperatureEntity<T>> GetByDate(long dateFrom, long dateTo);
     public Task DeleteAll();
-    public IEnumerable<TemperatureEntity<T>> GetAll();
+    public Task<IEnumerable<TemperatureEntity<T>>> GetAll();
 }

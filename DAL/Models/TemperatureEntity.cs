@@ -4,12 +4,12 @@ public abstract class TemperatureEntity<T> : Entity<T>, IEquatable<TemperatureEn
 {
     public double Temperature { get; set; }
     public long Date { get; set; }
-    public string? City { get; set; }
+    public string City { get; set; }
     public double Cloudiness { get; set; }
     public double Wetness { get; set; }
     public double WindSpeed { get; set; }
     public int Pressure { get; set; }
-    public string? Summary { get; set; }
+    public string Summary { get; set; }
     public bool Equals(TemperatureEntity<T> other)
     {
         if (other is null)

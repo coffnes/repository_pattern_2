@@ -5,8 +5,19 @@ using RepoTask.BLL.Mediators;
 using Microsoft.Extensions.Options;
 using RepoTask.BLL;
 using RepoTask.Test.Generate;
+using VueCliMiddleware;
+using Microsoft.AspNetCore.SpaServices;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        name: "_myAllowSpecificOrigins",
+        builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+    );
+});
 
 // Add services to the container.
 
@@ -50,7 +61,13 @@ builder.Services.AddTransient<WeatherHandler>();
 //Generate development data
 builder.Services.AddHostedService((provider) => new WeatherGenerator(provider.GetRequiredService<WeatherHandler>(), provider.GetRequiredService<MongoRepositoryManager>()));
 
+builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+builder.Services.AddResponseCaching();
+
 var app = builder.Build();
+
+app.UseCors("_myAllowSpecificOrigins");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -59,10 +76,23 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseResponseCaching();
+
+app.MapReverseProxy();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapToVueCliProxy(
+        "{*path}",
+        new SpaOptions { SourcePath = "ClientApp" },
+        npmScript: "dev",
+        port: 3399,
+        regex: "Compiled successfully!",
+        forceKill: true);
+}
 
 app.Run();

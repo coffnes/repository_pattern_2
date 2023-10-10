@@ -48,9 +48,11 @@ public class DefaultMongoRepository : IDefaultRepository<string>
     {
         await _zeroTemperatureCollection.DeleteManyAsync(Builders<TemperatureEntity<string>>.Filter.Empty);
     }
-    public IEnumerable<TemperatureEntity<string>> GetAll()
+    public async Task<IEnumerable<TemperatureEntity<string>>> GetAll()
     {
-        var result = _zeroTemperatureCollection.Aggregate().ToList();
+        var pipeline = new EmptyPipelineDefinition<TemperatureEntity<string>>();
+        var cursor = await _zeroTemperatureCollection.AggregateAsync(pipeline: pipeline);
+        var result = await cursor.ToListAsync();
         return result;
     }
 }
