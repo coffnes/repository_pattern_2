@@ -36,6 +36,11 @@
                 "${workspaceFolder}/RepoTask.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "end",
+            "command": "kill -9 `lsof -t -i:3399`",
+            "type": "shell"
         }
     ]
 }

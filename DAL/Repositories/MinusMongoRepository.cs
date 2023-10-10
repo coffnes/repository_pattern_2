@@ -31,10 +31,9 @@ public class MinusMongoRepository : IMinusRepository<string>
         var filter = Builders<TemperatureEntity<string>>
             .Filter
             .Eq(m => m.City, city);
-        result = _minusTemperatureCollection.Aggregate()
+        return _minusTemperatureCollection.Aggregate()
             .Match(filter)
             .ToList();
-        return result;
     }
     public IList<TemperatureEntity<string>> GetByDate(long dateFrom, long dateTo)
     {

@@ -88,6 +88,7 @@ export default {
       try {
         const response = await axios.get('/weatherforecast');
         this.weathers = response.data;
+        console.log(response.data.length);
       } catch (e) {
         console.log(e);
       }

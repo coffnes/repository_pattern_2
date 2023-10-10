@@ -10,6 +10,7 @@ import PaginationGraph from "@/pages/PaginationGraph.vue";
 import SearchClient from "@/pages/SearchClient.vue";
 import SearchServer from "@/pages/SearchServer.vue";
 import Elasticsearch from "@/pages/Elasticsearch.vue";
+import PathNotFound from "@/pages/PathNotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,6 +74,10 @@ const router = createRouter({
       name: 'elasticsearch',
       component: Elasticsearch
     },
+    {
+      path: '/:pathMatch(.*)*',
+      component: PathNotFound
+    }
   ]
 })
 
