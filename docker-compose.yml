@@ -1,0 +1,23 @@
+version: '1'
+services:
+  plus_mongo:
+    container_name: plus_mongo
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db-mongo-plus:/data/db
+  minus_mongo:
+    container_name: minus_mongo
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./data/db-mongo-minus:/data/db
+  zero_mongo:
+    container_name: zero_mongo
+    image: mongo:latest
+    ports:
+      - "27019:27017"
+    volumes:
+      - ./data/db-mongo-zero:/data/db
