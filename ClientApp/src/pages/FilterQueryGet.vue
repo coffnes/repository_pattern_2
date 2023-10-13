@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Filter data by GET request</h1>
+    <h1>Фильтрация данных GET запросом</h1>
     <div class="request_options">
       <v-select v-if="sortOptions"
                 :items="sortOptions"
@@ -9,20 +9,20 @@
                 v-model="selectedSort"
                 label="Sort options">
       </v-select>
-      <h3>Filter by city:</h3>
+      <h3>Фильтрация по городу:</h3>
       <v-select
           label="Choose city"
           :items="cities"
           v-model="selectedCity">
       </v-select>
-      <h3>Filter by date</h3>
+      <h3>Фильтрация по дате:</h3>
       <p>Select DateFrom and DateTo</p>
       <date-picker v-model.lazy="selectedDate" range
                    :partial-range="false"
                    :enable-time-picker="false">
       </date-picker>
-      <h3>Get only zeroes</h3>
-      <v-btn @click="this.weathers=filterOnlyZeroes">Get only zeroes</v-btn>
+      <h3>Получить только 0 температуру</h3>
+      <v-btn @click="this.weathers=filterOnlyZeroes">Только 0 темпертура</v-btn>
       <v-btn @click="resetFilters()">Default</v-btn>
       <v-btn @click="fetchWeather()">Test GET request</v-btn>
       <v-divider
@@ -49,9 +49,13 @@ export default {
     return {
       sortOptions: [
         { value: '', name: 'None' },
-        { value: 'date', name: 'Date' },
-        { value: 'city', name: 'City' },
-        { value: 'temperature', name: 'Temperature' },
+        { value: 'date', name: 'Дата' },
+        { value: 'city', name: 'Город' },
+        { value: 'temperature', name: 'Температура' },
+        { value: 'cloudiness', name: 'Облачность' },
+        { value: 'wetness', name: 'Влажность' },
+        { value: 'windSpeed', name: 'Скорость ветра' },
+        { value: 'pressure', name: 'Давление' },
       ],
       weathers: [],
       cities: [],

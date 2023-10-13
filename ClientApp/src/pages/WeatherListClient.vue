@@ -16,13 +16,13 @@
           v-model="selectedCity">
       </v-select>
       <h3>Фильтрация по дате</h3>
-      <p>Select DateFrom and DateTo</p>
+      <p>Выбирете DateFrom и DateTo</p>
       <date-picker v-model.lazy="selectedDate" range
                    :partial-range="false"
                    :enable-time-picker="false">
       </date-picker>
-      <h3>Get only zeroes</h3>
-      <v-btn @click="this.weathers=filterOnlyZeroes">Get only zeroes</v-btn>
+      <h3>Только 0 температура</h3>
+      <v-btn @click="this.weathers=filterOnlyZeroes">Только 0</v-btn>
       <v-btn @click="resetFilters()">Default</v-btn>
       <v-divider
           :thickness="3"

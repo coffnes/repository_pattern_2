@@ -49,9 +49,13 @@ export default {
     return {
       sortOptions: [
         { value: '', name: 'None' },
-        { value: 'date', name: 'Date' },
-        { value: 'city', name: 'City' },
-        { value: 'temperatureC', name: 'Temperature' },
+        { value: 'date', name: 'Дата' },
+        { value: 'city', name: 'Город' },
+        { value: 'temperature', name: 'Температура' },
+        { value: 'cloudiness', name: 'Облачность' },
+        { value: 'wetness', name: 'Влажность' },
+        { value: 'windSpeed', name: 'Скорость ветра' },
+        { value: 'pressure', name: 'Давление' },
       ],
       weathers: [],
       cities: [],
@@ -83,9 +87,11 @@ export default {
           selectedDateFrom: this.selectedDate === '' ? '' : (this.selectedDate[0].getTime() / 1000).toString(),
           selectedDateTo: this.selectedDate === '' ? '' : (this.selectedDate[1].getTime() / 1000).toString(),
         },
-        headers: {},
+        headers: {
+        },
       }).then((response) => {
         this.weathers = response.data;
+        console.log(response.data);
       }).catch((error) => {
         console.log(error);
       });

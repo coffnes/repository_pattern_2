@@ -7,6 +7,10 @@ using RepoTask.BLL;
 using RepoTask.Test.Generate;
 using VueCliMiddleware;
 using Microsoft.AspNetCore.SpaServices;
+using RepoTask.DAL.Models;
+using RepoTask.DAL.GraphQL;
+using Microsoft.AspNetCore.ResponseCompression;
+using RepoTask.DAL.FilterQuery;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +29,20 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Add GraphQL services
+builder.Services.AddGraphQLServer().AddQueryType<Query>();
+
+//Response compression
+builder.Services.AddResponseCompression(options => {
+    options.EnableForHttps = false;
+    options.Providers.Add<BrotliCompressionProvider>();
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
 
 //Add DB
 builder.Services.Configure<PlusMongoDatabaseSettings>(builder.Configuration.GetSection("PlusMongoDatabase"));
@@ -55,6 +73,16 @@ builder.Services.AddTransient<IMediator<string, Temperature>, PlusMediator>();
 builder.Services.AddTransient<IMediator<string, Temperature>, DefaultMediator>();
 builder.Services.AddTransient<IMediatorManager<string, Temperature>, TemperatureMediatorManager>();
 
+//Add sorting filters
+builder.Services.AddTransient((provider) => new TemperatureFilterHandler(provider.GetRequiredService<DateFilterHandler>()));
+builder.Services.AddTransient((provider) => new DateFilterHandler(provider.GetRequiredService<CityFilterHandler>()));
+builder.Services.AddTransient((provider) => new CityFilterHandler(provider.GetRequiredService<WetnessFilterHandler>()));
+builder.Services.AddTransient((provider) => new WetnessFilterHandler(provider.GetRequiredService<CloudinessFilterHandler>()));
+builder.Services.AddTransient((provider) => new CloudinessFilterHandler(provider.GetRequiredService<WindFilterHandler>()));
+builder.Services.AddTransient((provider) => new WindFilterHandler(provider.GetRequiredService<PressureFilterHandler>()));
+builder.Services.AddTransient((provider) => new PressureFilterHandler(provider.GetRequiredService<DefaultFilterHandler>()));
+builder.Services.AddTransient<DefaultFilterHandler>();
+
 //Weather heandler
 builder.Services.AddTransient<WeatherHandler>();
 
@@ -66,6 +94,7 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 builder.Services.AddResponseCaching();
 
 var app = builder.Build();
+
 
 app.UseCors("_myAllowSpecificOrigins");
 
@@ -80,9 +109,14 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseResponseCompression();
+
 app.UseResponseCaching();
 
+app.MapGraphQL();
+
 app.MapReverseProxy();
+
 
 if (app.Environment.IsDevelopment())
 {
