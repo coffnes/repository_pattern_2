@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using RepoTask.DAL.Models;
+using MongoDB.Bson;
 
 namespace RepoTask.DAL.Repositories;
 
@@ -13,6 +14,8 @@ public class PlusMongoRepository : IPlusRepository<string>
         _mongoClient = mongoClient;
         var mongoDatabse = _mongoClient.MongoClient.GetDatabase(weatherDatabaseSettings.Value.DatabaseName);
         _plusTemperatureCollection = mongoDatabse.GetCollection<TemperatureEntity<string>>(weatherDatabaseSettings.Value.PlusTemperatureCollectionName);
+        var options = new CreateIndexOptions { Unique = false };
+        _plusTemperatureCollection.Indexes.CreateOne("{ City : \"text\" }", options);
     }
     public async Task AddAsync(TemperatureEntity<string> entity)
     {
@@ -70,6 +73,16 @@ public class PlusMongoRepository : IPlusRepository<string>
         var pipeline = new EmptyPipelineDefinition<TemperatureEntity<string>>();
         var cursor = await _plusTemperatureCollection.AggregateAsync(pipeline: pipeline);
         var result = await cursor.ToListAsync();
+        return result;
+    }
+    public IList<TemperatureEntity<string>> Search(string searchQuery)
+    {
+        var queryRegexp = new BsonRegularExpression($"{searchQuery}");
+        var filter = Builders<TemperatureEntity<string>>
+            .Filter
+            .Regex("City", queryRegexp);
+        //var result = _minusTemperatureCollection.Aggregate().Search(Builders<TemperatureEntity<string>>.Search.Autocomplete(s => s.City, searchQuery)).ToList();
+        var result = _plusTemperatureCollection.Aggregate().Match(filter).ToList();
         return result;
     }
 }

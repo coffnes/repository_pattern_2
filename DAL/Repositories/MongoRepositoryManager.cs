@@ -1,3 +1,4 @@
+using RepoTask.DAL.FilterQuery;
 using RepoTask.DAL.Models;
 
 namespace RepoTask.DAL.Repositories;
@@ -6,11 +7,13 @@ public class MongoRepositoryManager
 {
     private readonly IEnumerable<IMongoRepository<string>> _repositories;
     private readonly IDefaultRepository<string> _defaultRepository;
+    private readonly TemperatureFilterHandler _tempHadler;
 
-    public MongoRepositoryManager(IEnumerable<IMongoRepository<string>> repositories, IDefaultRepository<string> defaultRepository)
+    public MongoRepositoryManager(IEnumerable<IMongoRepository<string>> repositories, IDefaultRepository<string> defaultRepository, TemperatureFilterHandler tempHadler)
     {
         _repositories = repositories;
         _defaultRepository = defaultRepository;
+        _tempHadler = tempHadler;
     }
 
     public IEnumerable<TemperatureEntity<string>> GetAll()
@@ -72,26 +75,18 @@ public class MongoRepositoryManager
             result = resultByCity.Intersect(resultByDate).ToList();
         else
             result = resultByCity.ToList();
-        if(filter.selectedSort != "" && filter.selectedSort != "None")
+        var sortingResult = _tempHadler.HandleCollection(filter.selectedSort, result);
+
+        return sortingResult;
+    }
+
+    public IList<TemperatureEntity<string>> Search(string searchQuery)
+    {
+        List<TemperatureEntity<string>> result = new();
+        foreach(var r in _repositories)
         {
-            result.Sort((TemperatureEntity<string> x, TemperatureEntity<string> y) =>
-            {
-                if(filter.selectedSort == "date")
-                {
-                    return x.Date.CompareTo(y.Date);
-                }
-                if(filter.selectedSort == "city")
-                {
-                    return x.City.CompareTo(y.City);
-                }
-                if(filter.selectedSort == "temperatureC")
-                {
-                    return x.Temperature.CompareTo(y.Temperature);
-                }
-                return x.Date.CompareTo(y.Date);
-            });
+            result = result.Concat(r.Search(searchQuery)).ToList();
         }
-        
         return result;
     }
 }

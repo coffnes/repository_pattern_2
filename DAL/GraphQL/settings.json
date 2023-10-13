@@ -1,0 +1,7 @@
+[
+    {
+      "name": "city",
+      "extension": true,
+      "fields": ["dynamicField"]
+    }
+]

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using RepoTask.DAL.Models;
 
@@ -13,6 +14,8 @@ public class MinusMongoRepository : IMinusRepository<string>
         var mongoDatabase = mongoClient.MongoClient.GetDatabase(databaseSettings.Value.DatabaseName);
         _minusTemperatureCollection = mongoDatabase.GetCollection<TemperatureEntity<string>>(databaseSettings.Value.MinusTemperatureCollectionName);
         _minusTemperatureCollectionOut = mongoDatabase.GetCollection<TemperatureEntity<string>>(databaseSettings.Value.MinusTemperatureCollectionName);
+        var options = new CreateIndexOptions { Unique = false };
+        _minusTemperatureCollection.Indexes.CreateOne("{ City : \"text\" }", options);
     }
     public async Task AddAsync(TemperatureEntity<string> entity)
     {
@@ -54,6 +57,16 @@ public class MinusMongoRepository : IMinusRepository<string>
         var pipeline = new EmptyPipelineDefinition<TemperatureEntity<string>>();
         var cursor = await _minusTemperatureCollectionOut.AggregateAsync(pipeline: pipeline);
         var result = await cursor.ToListAsync();
+        return result;
+    }
+    public IList<TemperatureEntity<string>> Search(string searchQuery)
+    {
+        var queryRegexp = new BsonRegularExpression($"{searchQuery}");
+        var filter = Builders<TemperatureEntity<string>>
+            .Filter
+            .Regex("City", queryRegexp);
+        //var result = _minusTemperatureCollection.Aggregate().Search(Builders<TemperatureEntity<string>>.Search.Autocomplete(s => s.City, searchQuery)).ToList();
+        var result = _minusTemperatureCollection.Aggregate().Match(filter).ToList();
         return result;
     }
 }

@@ -6,6 +6,7 @@ using RepoTask.DAL.Repositories;
 using RepoTask.DAL;
 using System.Text.Json;
 using RepoTask.Test.Generate;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace RepoTask.Controllers;
 
@@ -26,7 +27,7 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet]
-    [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 60)]
     public IEnumerable<TemperatureEntity<string>> Get()
     {
         var result = _repoManager.GetAll();
@@ -34,6 +35,7 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet("get_cities")]
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 600)]
     public IList<City> GetCitiesList()
     {
         return WeatherGenerator.cities;
@@ -64,7 +66,8 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpPost("query_post")]
-    public async void FilterPost() {
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 60)]
+    public async Task<string> FilterPost() {
         var jsonString = "";
         using(var inputStream = new StreamReader(HttpContext.Request.Body))
         {
@@ -90,10 +93,12 @@ public class WeatherForecastController : ControllerBase
             using var reader = new StreamReader(stream);
             jsonResponseString = await reader.ReadToEndAsync();
         }
-        await HttpContext.Response.WriteAsync(jsonResponseString);
+        //await HttpContext.Response.Body.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(jsonResponseString))).AsTask();
+        return jsonResponseString;
     }
     [HttpGet("filter_get")]
-    public async void FilterGet() {
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 60)]
+    public async Task<string> FilterGet() {
         FilterOptions filter = new FilterOptions();
         filter.selectedSort = Request.Query["selectedSort"];
         filter.selectedCity = Request.Query["selectedCity"];
@@ -112,7 +117,13 @@ public class WeatherForecastController : ControllerBase
             using var reader = new StreamReader(stream);
             jsonResponseString = await reader.ReadToEndAsync();
         }
-        //await HttpContext.Response.WriteAsync(jsonResponseString);
-        await HttpContext.Response.Body.WriteAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(jsonResponseString))).AsTask();
+        return jsonResponseString;
+    }
+
+    [HttpGet("search/{searchQuery}")]
+    [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+    public IList<TemperatureEntity<string>> Search(string searchQuery)
+    {
+        return _repoManager.Search(searchQuery);
     }
 }

@@ -96,9 +96,9 @@ public class WeatherGenerator : IHostedService
         //     await _handler.HandlChunk(zeroesChunk, zero);
         // }
         Parallel.For(0, 10, async (index) => {
-            List<TemperatureEntity<string>> plusChunk = new List<TemperatureEntity<string>>(testPlusWeathers.GenerateBetween(10000, 10000).Cast<TemperatureEntity<string>>());
-            List<TemperatureEntity<string>> minusChunk = new List<TemperatureEntity<string>>(testMinusWeathers.GenerateBetween(10000, 10000).Cast<TemperatureEntity<string>>());
-            List<TemperatureEntity<string>> zeroesChunk = new List<TemperatureEntity<string>>(testZeroesWeathers.GenerateBetween(10000, 10000).Cast<TemperatureEntity<string>>());
+            List<TemperatureEntity<string>> plusChunk = new List<TemperatureEntity<string>>(testPlusWeathers.GenerateBetween(1000, 1000).Cast<TemperatureEntity<string>>());
+            List<TemperatureEntity<string>> minusChunk = new List<TemperatureEntity<string>>(testMinusWeathers.GenerateBetween(1000, 1000).Cast<TemperatureEntity<string>>());
+            List<TemperatureEntity<string>> zeroesChunk = new List<TemperatureEntity<string>>(testZeroesWeathers.GenerateBetween(1000, 1000).Cast<TemperatureEntity<string>>());
             await _handler.HandlChunk(minusChunk, minus);
             await _handler.HandlChunk(plusChunk, plus);
             await _handler.HandlChunk(zeroesChunk, zero);
