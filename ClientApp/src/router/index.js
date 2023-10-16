@@ -11,6 +11,7 @@ import SearchClient from "@/pages/SearchClient.vue";
 import SearchServer from "@/pages/SearchServer.vue";
 import Elasticsearch from "@/pages/Elasticsearch.vue";
 import PathNotFound from "@/pages/PathNotFound.vue";
+import BigQueryPage from '@/pages/BigQueryPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,9 +76,14 @@ const router = createRouter({
       component: Elasticsearch
     },
     {
+      path: '/big_query',
+      name: 'big_query',
+      component: BigQueryPage
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: PathNotFound
-    }
+    },
   ]
 })
 

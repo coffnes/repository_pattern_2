@@ -31,8 +31,6 @@
     </div>
     <add-dialog @create="addWeather"></add-dialog>
     <graph-weather-list :weathers="weathers"/>
-    <v-btn @click="prevPage">Prev</v-btn>
-    <v-btn @click="nextPage">Next</v-btn>
   </div>
 </template>
 
@@ -86,32 +84,59 @@ export default {
             console.log(error)
           })
     },
-    nextPage() {
-      this.fetchPageInfo();
-      if(this.pageInfo.hasNextPage) {
-        this.cursor = this.pageInfo.endCursor;
-      }
-    },
-    prevPage() {
-      this.fetchPageInfo();
-      if(this.pageInfo.hasPreviousPage) {
-        this.cursor = this.pageInfo.startCursor;
-      }
-    },
     fetchPageInfo() {
       this.pageInfo.startCursor = this.weathers.pageInfo.startCursor;
       this.pageInfo.endCursor = this.weathers.pageInfo.endCursor;
       this.pageInfo.hasNextPage = this.weathers.pageInfo.hasNextPage;
       this.pageInfo.hasPreviousPage = this.weathers.pageInfo.hasPreviousPage;
     },
+    fetchMoreWeathers() {
+      this.$apollo.queries.weathers.fetchMore({
+        variables: {
+          selectedSort: this.selectedSort,
+          selectedCity: this.selectedCity,
+          selectedDateFrom: (this.selectedDate === '' ? 0 : this.selectedDate[0].getTime() / 1000).toString(),
+          selectedDateTo: (this.selectedDate === '' ? 0 : this.selectedDate[1].getTime() / 1000).toString(),
+          first: 20,
+          cursor: this.weathers.pageInfo.endCursor,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          const newEdges = fetchMoreResult.weathers.edges;
+          const pageInfo = fetchMoreResult.weathers.pageInfo;
+
+          return newEdges.length ? {
+            ...previousResult,
+            weathers: {
+              ...previousResult.weathers,
+              // Concat edges
+              edges: [
+                ...previousResult.weathers.edges,
+                ...newEdges,
+              ],
+              // Override with new pageInfo
+              pageInfo,
+            }
+          } : previousResult
+        },
+      })
+    },
+    showMore() {
+      window.onscroll = () => {
+        let bottomOfWindow = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight;
+        if(bottomOfWindow) {
+          this.fetchMoreWeathers();
+        }
+      }
+    },
   },
   mounted() {
     this.getCities();
+    this.showMore();
   },
   apollo: {
     weathers: {
-      query: gql`query FetchWeathers($selectedSort: String!, $selectedCity: String!, $selectedDateFrom: String!, $selectedDateTo: String!, $first: Int, $after: String){
-        weathers(selectedSort: $selectedSort, selectedCity: $selectedCity, selectedDateFrom: $selectedDateFrom, selectedDateTo: $selectedDateTo, first: $first, after: $after) {
+      query: gql`query fetchWeathers($selectedSort: String!, $selectedCity: String!, $selectedDateFrom: String!, $selectedDateTo: String!, $first: Int, $cursor: String){
+        weathers(selectedSort: $selectedSort, selectedCity: $selectedCity, selectedDateFrom: $selectedDateFrom, selectedDateTo: $selectedDateTo, first: $first, after: $cursor) {
           edges {
             node {
               city
@@ -123,12 +148,9 @@ export default {
               pressure
               summary
             }
-            cursor
           }
           pageInfo {
             hasNextPage
-            hasPreviousPage
-            startCursor
             endCursor
           }
         }
@@ -140,9 +162,8 @@ export default {
           selectedCity: this.selectedCity,
           selectedDateFrom: (this.selectedDate === '' ? 0 : this.selectedDate[0].getTime() / 1000).toString(),
           selectedDateTo: (this.selectedDate === '' ? 0 : this.selectedDate[1].getTime() / 1000).toString(),
-          first: 10,
+          first: 20,
           after: this.cursor,
-          
         }
       }
     }

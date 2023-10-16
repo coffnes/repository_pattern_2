@@ -11,7 +11,7 @@
       </v-select>
       <h3>Фильтрация по городу:</h3>
       <v-select
-          label="Choose city"
+          label="Выберете город"
           :items="cities"
           v-model="selectedCity">
       </v-select>
@@ -90,7 +90,6 @@ export default {
         headers: {},
       }).then((response) => {
         this.weathers = response.data;
-        console.log(typeof response.data);
       }).catch((error) => {
         console.log(error);
       });

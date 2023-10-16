@@ -8,6 +8,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core
 import { createApolloProvider } from '@vue/apollo-option';
 
 import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
 import {createVuetify} from "vuetify"
 
 import {RecycleScroller} from 'vue-virtual-scroller';

@@ -26,7 +26,6 @@ export default {
       const month = (`0${date.getMonth()}`).slice(-2);
       const year = date.getFullYear();
       const strDate = `${day}-${month}-${year}`;
-      console.log(this.weather);
       return strDate;
     },
     convertCloudiness(cloudiness) {

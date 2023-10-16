@@ -15,6 +15,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/pag_mongo"><v-btn stacked variant="plain">Пагинация MongoDriver</v-btn></RouterLink>
         <RouterLink to="/search_client"><v-btn stacked variant="plain">Поиск на клиенте</v-btn></RouterLink>
         <RouterLink to="/search_server"><v-btn stacked variant="plain">Поиск на сервере</v-btn></RouterLink>
+        <RouterLink to="/big_query"><v-btn stacked variant="plain">Фильтр</v-btn></RouterLink>
       </v-app-bar>
       <v-main>
         <RouterView />
